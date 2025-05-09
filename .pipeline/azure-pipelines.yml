@@ -19,7 +19,7 @@ stages:
     steps:
     - task: AzureCLI@2
       inputs:
-        azureSubscription: 'songxiangcr'  # Set in Project > Project Settings > Service connections
+        azureSubscription: 'songxiangrg-service-connection'  # Set in Project > Project Settings > Service connections
         scriptType: bash
         scriptLocation: inlineScript
         inlineScript: |
