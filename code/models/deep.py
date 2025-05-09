@@ -4,7 +4,7 @@ import torch.nn.functional as F
 from torch.utils.data import DataLoader, TensorDataset
 from sklearn.datasets import make_classification
 from sklearn.model_selection import train_test_split
-from sklearn.metrics import accuracy_score
+from sklearn.metrics import roc_auc_score
 import numpy as np
 from models.abstract_predictor import AbstractPredictor
 from models.abstract_trainer import AbstractTrainer
@@ -105,8 +105,8 @@ class DeepTrainer(AbstractTrainer):
             with torch.no_grad():
                 preds = model(X_test_tensor)
                 pred_labels = (preds > 0.5).float()
-                acc = accuracy_score(y_test_tensor.numpy(), pred_labels.numpy())
-                print(f"Epoch {epoch + 1}: Val Accuracy = {acc:.4f}")
+                auc = roc_auc_score(y_test_tensor.numpy(), pred_labels.numpy())
+                print(f"Epoch {epoch + 1}: Val AUC = {auc:.4f}")
 
         self.best_model = model
         # Final test on 20% holdout

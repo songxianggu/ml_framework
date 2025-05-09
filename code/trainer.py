@@ -24,11 +24,11 @@ if __name__ == '__main__':
     # print(trainer.test_auc)
     # print(trainer.test_accuracy)
 
-    trainer = DeepTrainer(df)
-    trainer.train()
-    trainer.save('../model_data/deep.pth')
-    print(trainer.test_auc)
-    print(trainer.test_accuracy)
+    # trainer = DeepTrainer(df)
+    # trainer.train()
+    # trainer.save('../model_data/deep.pth')
+    # print(trainer.test_auc)
+    # print(trainer.get_accuracy())
 
     trainer = LogisticTrainer(df)
     trainer.train()

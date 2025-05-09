@@ -23,6 +23,15 @@ class XGBPredictor(AbstractPredictor):
 
 class XBGTrainer(AbstractTrainer):
     def __init__(self, df : pd.DataFrame):
+        X = df.drop(['label', 'User', 'Card'], axis=1)
+        y = df['label']
+
+        pos = (y == 1).sum()
+        neg = (y == 0).sum()
+
+        print("pos:", pos)
+        print("neg:", neg)
+
         self.train_df = self._resampling(df)
 
     def save(self, path: str):
@@ -65,7 +74,6 @@ class XBGTrainer(AbstractTrainer):
 
         best_round = len(cv_result)
         print(f"Best number of boosting rounds: {best_round}")
-
 
 
         # Final training using all data
