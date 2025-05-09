@@ -1,7 +1,7 @@
 trigger:
   branches:
     include:
-      - main  # or 'master'
+      - main
 
 variables:
   # Set your ACR name and image name
@@ -19,7 +19,7 @@ stages:
     steps:
     - task: AzureCLI@2
       inputs:
-        azureSubscription: '<your-service-connection-name>'  # Set in Project > Project Settings > Service connections
+        azureSubscription: 'songxiangcr'  # Set in Project > Project Settings > Service connections
         scriptType: bash
         scriptLocation: inlineScript
         inlineScript: |
