@@ -76,10 +76,13 @@ class DeepTrainer(AbstractTrainer):
             X, y, test_size=0.2, random_state=42, stratify=y
         )
 
-        X_train = torch.tensor(X_trainval.to_numpy(), dtype=torch.float32)
-        y_train = torch.tensor(y_trainval.to_numpy(), dtype=torch.float32).unsqueeze(1)  # shape [N, 1]
-        X_test = torch.tensor(X_test.to_numpy(), dtype=torch.float32)
-        y_test = torch.tensor(y_test.to_numpy(), dtype=torch.float32).unsqueeze(1)
+        print(X_trainval)
+        print(X_trainval.dtypes)
+
+        X_train = torch.tensor(X_trainval.astype(np.float32).to_numpy(), dtype=torch.float32)
+        y_train = torch.tensor(y_trainval.astype(np.float32).to_numpy(), dtype=torch.float32).unsqueeze(1)  # shape [N, 1]
+        X_test = torch.tensor(X_test.astype(np.float32).to_numpy(), dtype=torch.float32)
+        y_test = torch.tensor(y_test.astype(np.float32).to_numpy(), dtype=torch.float32).unsqueeze(1)
 
         train_loader = DataLoader(TensorDataset(X_train, y_train), batch_size=64, shuffle=True)
         val_loader = DataLoader(TensorDataset(X_test, y_test), batch_size=64)
