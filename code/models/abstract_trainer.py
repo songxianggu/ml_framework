@@ -20,9 +20,6 @@ class AbstractTrainer(ABC):
     def train(self, data_frame: pd.DataFrame):
         pass
 
-    @abstractmethod
-    def predict(self, features: []) -> float:
-        pass
 
     @abstractmethod
     def save(self, path: str):
