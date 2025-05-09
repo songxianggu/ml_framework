@@ -41,7 +41,6 @@ class XBGTrainer(AbstractTrainer):
             X, y, test_size=0.2, random_state=42, stratify=y
         )
         sample_weights = y_trainval.map(lambda x: scale if x == 1 else 1.0)
-        print('ck 1')
         dtrain = xgb.DMatrix(X_trainval, label=y_trainval, weight=sample_weights)
 
         params = {
@@ -66,6 +65,8 @@ class XBGTrainer(AbstractTrainer):
 
         best_round = len(cv_result)
         print(f"Best number of boosting rounds: {best_round}")
+
+
 
         # Final training using all data
         self.best_model = xgb.train(params, dtrain, num_boost_round=best_round)

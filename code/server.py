@@ -24,7 +24,7 @@ class ModelManager:
     def __init__(self):
         self.models = []  # List of (model_id, xgb.Booster)
 
-    def load_model_from_json_string(self, model_json_str: str) -> str:
+    async def load_model_from_json_string(self, model_json_str: str) -> str:
         with tempfile.NamedTemporaryFile(delete=False, suffix=".json") as tmp:
             tmp.write(model_json_str.encode('utf-8'))
             tmp_path = tmp.name
@@ -37,10 +37,10 @@ class ModelManager:
         self.models.append((model_id, model))
         return model_id
 
-    def drop_model(self, model_id: str):
+    async def drop_model(self, model_id: str):
         self.models = [(mid, m) for (mid, m) in self.models if mid != model_id]
 
-    def predict(self, features: List[float]) -> float:
+    async def predict(self, features: List[float]) -> float:
         if not self.models:
             raise ValueError("No models loaded.")
 
@@ -54,28 +54,28 @@ model_manager = ModelManager()
 
 
 @app.post("/predict")
-def predict(request: PredictRequest):
+async def predict(request: PredictRequest):
     try:
-        prob, model_id = model_manager.predict(request.features)
+        prob, model_id = await model_manager.predict(request.features)
         return {"probability": prob, "model_used": model_id}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
 
 @app.post("/add_model")
-def add_model(request: AddModelRequest):
+async def add_model(request: AddModelRequest):
     try:
         model_json_str = request.model_json
-        model_id = model_manager.load_model_from_json_string(model_json_str)
+        model_id = await model_manager.load_model_from_json_string(model_json_str)
         return {"status": "Model loaded successfully.", "model_id": model_id}
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
 
 
 @app.post("/drop_model/{model_id}")
-def drop_model(model_id: str):
+async def drop_model(model_id: str):
     try:
-        model_manager.drop_model(model_id)
+        await model_manager.drop_model(model_id)
         return {"status": f"Model '{model_id}' dropped successfully."}
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))

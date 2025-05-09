@@ -1,6 +1,7 @@
 from data_loader import DataLoader
 from models.logistic import LogisticTrainer
 from models.xgb import XBGTrainer
+from models.deep import DeepTrainer
 import pandas as pd
 
 user_file = '../data/sd254_users.csv'
@@ -17,11 +18,11 @@ if __name__ == '__main__':
 
     df = pd.read_csv('../data/refined_training_data.csv')
 
-    trainer = XBGTrainer(df)
-    trainer.train()
-    trainer.save('../model_data/xgb.json')
-    print(trainer.test_auc)
-    print(trainer.test_accuracy)
+    # trainer = XBGTrainer(df)
+    # trainer.train()
+    # trainer.save('../model_data/xgb.json')
+    # print(trainer.test_auc)
+    # print(trainer.test_accuracy)
 
     trainer = DeepTrainer(df)
     trainer.train()
