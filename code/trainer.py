@@ -18,11 +18,11 @@ if __name__ == '__main__':
 
     df = pd.read_csv('../data/refined_training_data.csv')
 
-    # trainer = XBGTrainer(df)
-    # trainer.train()
+    trainer = XBGTrainer(df)
+    trainer.train()
     # trainer.save('../model_data/xgb.json')
-    # print(trainer.test_auc)
-    # print(trainer.test_accuracy)
+    print(trainer.test_auc)
+    print(trainer.test_accuracy)
 
     # trainer = DeepTrainer(df)
     # trainer.train()

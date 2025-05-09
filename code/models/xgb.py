@@ -80,6 +80,9 @@ class XBGTrainer(AbstractTrainer):
         self.best_model = xgb.train(params, dtrain, num_boost_round=best_round)
         # Final test
         dtest = xgb.DMatrix(X_test)
+        print(dtest)
+        from sklearn.datasets import dump_svmlight_file
+        dump_svmlight_file(X_test, y_test, '../model_data/dtest.features')
         y_pred_proba = self.best_model.predict(dtest)  # output is probability
         y_pred = (y_pred_proba > 0.5).astype(int)  # convert to binary label
         self._evaluation(y_test, y_pred, y_pred_proba)

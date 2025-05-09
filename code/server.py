@@ -53,6 +53,11 @@ class ModelManager:
 model_manager = ModelManager()
 
 
+@app.get("/healthz")
+async def health_check():
+    return {"status": "ok"}
+
+
 @app.post("/predict")
 async def predict(request: PredictRequest):
     try:
