@@ -5,7 +5,7 @@ from torch.utils.data import DataLoader, TensorDataset
 from sklearn.datasets import make_classification
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score
-
+import numpy as np
 from models.abstract_predictor import AbstractPredictor
 from models.abstract_trainer import AbstractTrainer
 
@@ -13,7 +13,8 @@ from models.abstract_trainer import AbstractTrainer
 class DNNBinaryClassifier(nn.Module):
     def __init__(self, input_dim):
         super().__init__()
-        self.hidden_dim = input_dim // 2
+        self.input_dim = input_dim
+        self.hidden_dim = self.input_dim // 2
         self.dropout_rate = 0.1
         self.net = nn.Sequential(
             nn.Linear(input_dim, self.hidden_dim),
@@ -76,22 +77,21 @@ class DeepTrainer(AbstractTrainer):
             X, y, test_size=0.2, random_state=42, stratify=y
         )
 
-        print(X_trainval)
-        print(X_trainval.dtypes)
+        print('data loading')
+        X_train_tensor = torch.tensor(X_trainval[:100].astype(np.float32).to_numpy(), dtype=torch.float32)
+        y_train_tensor = torch.tensor(y_trainval[:100].astype(np.float32).to_numpy(), dtype=torch.float32).unsqueeze(1)  # shape [N, 1]
+        X_test_tensor = torch.tensor(X_test[:100].astype(np.float32).to_numpy(), dtype=torch.float32)
+        y_test_tensor = torch.tensor(y_test[:100].astype(np.float32).to_numpy(), dtype=torch.float32).unsqueeze(1)
 
-        X_train = torch.tensor(X_trainval.astype(np.float32).to_numpy(), dtype=torch.float32)
-        y_train = torch.tensor(y_trainval.astype(np.float32).to_numpy(), dtype=torch.float32).unsqueeze(1)  # shape [N, 1]
-        X_test = torch.tensor(X_test.astype(np.float32).to_numpy(), dtype=torch.float32)
-        y_test = torch.tensor(y_test.astype(np.float32).to_numpy(), dtype=torch.float32).unsqueeze(1)
+        train_loader = DataLoader(TensorDataset(X_train_tensor, y_train_tensor), batch_size=64, shuffle=True)
+        test_loader = DataLoader(TensorDataset(X_test_tensor, y_test_tensor), batch_size=64)
 
-        train_loader = DataLoader(TensorDataset(X_train, y_train), batch_size=64, shuffle=True)
-        val_loader = DataLoader(TensorDataset(X_test, y_test), batch_size=64)
-
+        print('data loaded')
         model = DNNBinaryClassifier(input_dim=len(X.columns))
         optimizer = torch.optim.Adam(model.parameters(), lr=1e-3)
         loss_fn = nn.BCELoss()  # Binary Cross Entropy
 
-        # 3. 训练模型
+        print('start training...')
         for epoch in range(10):
             model.train()
             for xb, yb in train_loader:
@@ -101,16 +101,15 @@ class DeepTrainer(AbstractTrainer):
                 loss.backward()
                 optimizer.step()
 
-            # 验证
             model.eval()
             with torch.no_grad():
-                preds = model(X_test)
+                preds = model(X_test_tensor)
                 pred_labels = (preds > 0.5).float()
-                acc = accuracy_score(y_test.numpy(), pred_labels.numpy())
+                acc = accuracy_score(y_test_tensor.numpy(), pred_labels.numpy())
                 print(f"Epoch {epoch + 1}: Val Accuracy = {acc:.4f}")
 
         self.best_model = model
         # Final test on 20% holdout
-        y_pred_proba = self.best_model(X_test)
-        y_pred = (preds > 0.5).float().tolist()
-        self._evaluation(y_test, y_pred, y_pred_proba)
+        y_pred_proba = self.best_model(X_test_tensor)
+        y_pred = (y_pred_proba > 0.5).float()
+        self._evaluation(y_test_tensor.numpy(), y_pred.detach().numpy(), y_pred_proba.detach().numpy())
