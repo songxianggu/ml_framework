@@ -11,7 +11,7 @@ COPY . .
 RUN pip install --no-cache-dir fastapi uvicorn xgboost numpy pydantic
 
 # Expose the API port
-EXPOSE 8000
+EXPOSE 80
 
 # Command to run the server
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["uvicorn", "server:app", "--host", "0.0.0.0", "--port", "80"]
