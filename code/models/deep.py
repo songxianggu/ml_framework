@@ -6,7 +6,8 @@ from sklearn.datasets import make_classification
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score
 
-from code.models.abstract_trainer import AbstractTrainer
+from models.abstract_predictor import AbstractPredictor
+from models.abstract_trainer import AbstractTrainer
 
 
 class DNNBinaryClassifier(nn.Module):
@@ -29,18 +30,11 @@ class DNNBinaryClassifier(nn.Module):
         return self.net(x)
 
 
-class DeepTrainer(AbstractTrainer):
-    def __init__(self, df):
-        self.train_df = self._resampling(df)
+class DeepPredictor(AbstractPredictor):
+    def __init__(self, path: str):
+        self._load(path)
 
-    def save(self, path: str):
-        with open(path, "wb") as f:
-            torch.save({
-                'input_dim': self.best_model.input_dim,
-                'state_dict': self.best_model.state_dict()
-            }, path)
-
-    def load(self, path: str):
+    def _load(self, path: str):
         with open(path, "rb") as f:
             checkpoint = torch.load(path)
             input_dim = checkpoint['input_dim']
@@ -59,6 +53,19 @@ class DeepTrainer(AbstractTrainer):
         with torch.no_grad():
             output = self.best_model(input_tensor)
         return output
+
+
+class DeepTrainer(AbstractTrainer):
+    def __init__(self, df):
+        self.train_df = self._resampling(df)
+
+    def save(self, path: str):
+        with open(path, "wb") as f:
+            torch.save({
+                'input_dim': self.best_model.input_dim,
+                'state_dict': self.best_model.state_dict()
+            }, path)
+
 
     def train(self):
         X = self.train_df.drop(['label', 'User', 'Card'], axis=1)

@@ -7,6 +7,21 @@ from sklearn.linear_model import LogisticRegressionCV
 import pickle
 import pandas as pd
 
+from models.abstract_predictor import AbstractPredictor
+
+
+class LogisticPredictor(AbstractPredictor):
+    def __init__(self, path: str):
+        self._load(path)
+        pass
+
+    def _load(self, path: str):
+        with open(path, "rb") as f:
+            self.best_model = pickle.load(f)
+
+    def predict(self, features: []) -> float:
+        return self.best_model.predict(features)
+
 
 class LogisticTrainer(AbstractTrainer):
     def __init__(self, df : pd.DataFrame):
@@ -15,13 +30,6 @@ class LogisticTrainer(AbstractTrainer):
     def save(self, path: str):
         with open(path, "wb") as f:
             pickle.dump(self.best_model, f)
-
-    def load(self, path: str):
-        with open(path, "rb") as f:
-            self.best_model = pickle.load(f)
-
-    def predict(self, features: []) -> float:
-        return self.best_model.predict(features)
 
     def train(self):
         X = self.train_df.drop(['label', 'User', 'Card'], axis=1)

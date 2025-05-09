@@ -6,6 +6,20 @@ from models.abstract_trainer import AbstractTrainer
 from sklearn.model_selection import StratifiedKFold
 from sklearn.metrics import roc_auc_score
 
+from models.abstract_predictor import AbstractPredictor
+
+
+class XGBPredictor(AbstractPredictor):
+    def __init__(self, path: str):
+        self._load(path)
+
+    def _load(self, path: str):
+        self.best_model = xgb.Booster()
+        self.best_model.load_model(path)
+
+    def predict(self, features: []) -> float:
+        return self.best_model.predict(features)
+
 
 class XBGTrainer(AbstractTrainer):
     def __init__(self, df : pd.DataFrame):
@@ -13,13 +27,6 @@ class XBGTrainer(AbstractTrainer):
 
     def save(self, path: str):
         self.best_model.save_model(path)
-
-    def load(self, path: str):
-        self.best_model = xgb.Booster()
-        self.best_model.load_model(path)
-
-    def predict(self, features: []) -> float:
-        return self.best_model.predict(features)
 
     def train(self):
         X = self.train_df.drop(['label', 'User', 'Card'], axis=1)

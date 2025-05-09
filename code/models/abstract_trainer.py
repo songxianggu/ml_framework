@@ -28,10 +28,6 @@ class AbstractTrainer(ABC):
     def save(self, path: str):
         pass
 
-    @abstractmethod
-    def load(self, path: str):
-        pass
-
     def get_accuracy(self) -> tuple[float, float]:
         return self.test_accuracy, self.ci_95
 
