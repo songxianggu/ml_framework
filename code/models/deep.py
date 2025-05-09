@@ -8,7 +8,8 @@ from sklearn.metrics import roc_auc_score
 import numpy as np
 from models.abstract_predictor import AbstractPredictor
 from models.abstract_trainer import AbstractTrainer
-
+from torch.utils.tensorboard import SummaryWriter
+import datetime
 
 class DNNBinaryClassifier(nn.Module):
     def __init__(self, input_dim):
@@ -43,7 +44,7 @@ class DeepPredictor(AbstractPredictor):
             self.best_model.load_state_dict(checkpoint['state_dict'])
             self.best_model.eval()
 
-    def predict(self, features: []) -> float:
+    def predict(self, features: [], feature_names: [] = []) -> float:
         input_tensor = torch.tensor([features], dtype=torch.float32)  # shape: [1, input_dim]
 
         # Optional: move to GPU if needed
@@ -91,22 +92,32 @@ class DeepTrainer(AbstractTrainer):
         optimizer = torch.optim.Adam(model.parameters(), lr=1e-3)
         loss_fn = nn.BCELoss()  # Binary Cross Entropy
 
+        writer = SummaryWriter(log_dir=f"runs/deep_model_{datetime.datetime.now().strftime('%Y%m%d_%H%M%S')}")
+        # ✅ Log model graph (only once)
+        writer.add_graph(model, X_train_tensor[:1])  # small dummy input
         print('start training...')
         for epoch in range(10):
             model.train()
+            running_loss = 0.0
             for xb, yb in train_loader:
                 pred = model(xb)
                 loss = loss_fn(pred, yb)
                 optimizer.zero_grad()
                 loss.backward()
                 optimizer.step()
+                running_loss += loss.item()
 
+            avg_loss = running_loss / len(train_loader)
             model.eval()
             with torch.no_grad():
                 preds = model(X_test_tensor)
                 pred_labels = (preds > 0.5).float()
                 auc = roc_auc_score(y_test_tensor.numpy(), pred_labels.numpy())
                 print(f"Epoch {epoch + 1}: Val AUC = {auc:.4f}")
+            writer.add_scalar("Loss/train", avg_loss, epoch)
+            writer.add_scalar("AUC/val", auc, epoch)
+
+        writer.close()
 
         self.best_model = model
         # Final test on 20% holdout

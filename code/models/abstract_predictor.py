@@ -5,5 +5,5 @@ class AbstractPredictor(ABC):
         pass
 
     @abstractmethod
-    def predict(self, features: []) -> float:
+    def predict(self, features: [], feature_names: []) -> float:
         pass

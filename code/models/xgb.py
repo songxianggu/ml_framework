@@ -1,5 +1,6 @@
 import xgboost as xgb
 import pandas as pd
+import numpy as np
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score, roc_auc_score
 from models.abstract_trainer import AbstractTrainer
@@ -7,7 +8,6 @@ from sklearn.model_selection import StratifiedKFold
 from sklearn.metrics import roc_auc_score
 
 from models.abstract_predictor import AbstractPredictor
-
 
 class XGBPredictor(AbstractPredictor):
     def __init__(self, path: str):
@@ -17,8 +17,11 @@ class XGBPredictor(AbstractPredictor):
         self.best_model = xgb.Booster()
         self.best_model.load_model(path)
 
-    def predict(self, features: []) -> float:
-        return self.best_model.predict(features)
+    def predict(self, features: [], feature_names: [] = []) -> float:
+        features_array = np.array([features])
+        dmatrix = xgb.DMatrix(features_array, feature_names=feature_names)  # Convert NumPy array to DMatrix
+        prediction = self.best_model.predict(dmatrix)
+        return float(prediction[0])
 
 
 class XBGTrainer(AbstractTrainer):

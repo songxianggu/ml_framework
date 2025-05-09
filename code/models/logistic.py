@@ -19,7 +19,7 @@ class LogisticPredictor(AbstractPredictor):
         with open(path, "rb") as f:
             self.best_model = pickle.load(f)
 
-    def predict(self, features: []) -> float:
+    def predict(self, features: [], feature_names: [] = []) -> float:
         return self.best_model.predict(features)
 
 

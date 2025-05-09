@@ -17,22 +17,23 @@ if __name__ == '__main__':
     # print('finished saving training data.')
 
     df = pd.read_csv('../data/refined_training_data.csv')
+    print(df.columns.tolist())
 
-    trainer = XBGTrainer(df)
-    trainer.train()
-    # trainer.save('../model_data/xgb.json')
-    print(trainer.test_auc)
-    print(trainer.test_accuracy)
-
-    # trainer = DeepTrainer(df)
+    # trainer = XBGTrainer(df)
     # trainer.train()
-    # trainer.save('../model_data/deep.pth')
+    # trainer.save('../model_data/xgb.json')
     # print(trainer.test_auc)
-    # print(trainer.get_accuracy())
+    # print(trainer.test_accuracy)
 
-    trainer = LogisticTrainer(df)
+    trainer = DeepTrainer(df)
     trainer.train()
-    trainer.save('../model_data/logistic.pickle')
+    trainer.save('../model_data/deep.pth')
     print(trainer.test_auc)
-    print(trainer.test_accuracy)
+    print(trainer.get_accuracy())
+
+    # trainer = LogisticTrainer(df)
+    # trainer.train()
+    # trainer.save('../model_data/logistic.pickle')
+    # print(trainer.test_auc)
+    # print(trainer.test_accuracy)
 
